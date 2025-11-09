@@ -243,24 +243,32 @@ export default function ProfilePage({ params }: ProfilePageProps) {
 
                   {/* Botones de control - solo visible para el dueño */}
                   {isOwnProfile && (
-                    <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                    <div className="absolute top-2 right-2 flex gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity z-10">
                       {/* Botón publicar/despublicar */}
                       <button
                         onClick={(e) => {
                           e.preventDefault();
+                          e.stopPropagation();
                           handleTogglePublish(video.id, video.isPublic);
                         }}
-                        className={`p-2 rounded-full ${
+                        onTouchStart={(e) => {
+                          e.stopPropagation();
+                        }}
+                        onContextMenu={(e) => {
+                          e.preventDefault();
+                        }}
+                        className={`p-2 rounded-full touch-manipulation ${
                           video.isPublic
-                            ? 'bg-yellow-600 hover:bg-yellow-700'
-                            : 'bg-green-600 hover:bg-green-700'
+                            ? 'bg-yellow-600 hover:bg-yellow-700 active:bg-yellow-800'
+                            : 'bg-green-600 hover:bg-green-700 active:bg-green-800'
                         }`}
                         title={video.isPublic ? 'Despublicar' : 'Publicar'}
+                        aria-label={video.isPublic ? 'Despublicar video' : 'Publicar video'}
                       >
                         {video.isPublic ? (
-                          <EyeSlashIcon className="w-4 h-4 text-white" />
+                          <EyeSlashIcon className="w-4 h-4 text-white pointer-events-none" />
                         ) : (
-                          <EyeIcon className="w-4 h-4 text-white" />
+                          <EyeIcon className="w-4 h-4 text-white pointer-events-none" />
                         )}
                       </button>
 
@@ -268,12 +276,20 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                       <button
                         onClick={(e) => {
                           e.preventDefault();
+                          e.stopPropagation();
                           handleDeleteVideo(video.id);
                         }}
-                        className="bg-red-600 hover:bg-red-700 p-2 rounded-full"
+                        onTouchStart={(e) => {
+                          e.stopPropagation();
+                        }}
+                        onContextMenu={(e) => {
+                          e.preventDefault();
+                        }}
+                        className="bg-red-600 hover:bg-red-700 active:bg-red-800 p-2 rounded-full touch-manipulation"
                         title="Eliminar video"
+                        aria-label="Eliminar video"
                       >
-                        <TrashIcon className="w-4 h-4 text-white" />
+                        <TrashIcon className="w-4 h-4 text-white pointer-events-none" />
                       </button>
                     </div>
                   )}

@@ -205,12 +205,13 @@ export default function VideoCard({ video, onUpdate }: VideoCardProps) {
             {/* Control de volumen */}
             <button
               onClick={toggleMute}
-              className="absolute bottom-6 left-4 z-10 bg-black/50 rounded-full p-2 hover:bg-black/70 transition-colors"
+              className="absolute top-4 right-4 z-10 bg-black/50 rounded-full p-2 hover:bg-black/70 transition-colors backdrop-blur-sm"
+              aria-label={isMuted ? "Activar sonido" : "Silenciar"}
             >
               {isMuted ? (
-                <SpeakerXMarkIcon className="w-6 h-6 text-white" />
+                <SpeakerXMarkIcon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               ) : (
-                <SpeakerWaveIcon className="w-6 h-6 text-white" />
+                <SpeakerWaveIcon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               )}
             </button>
           </>
