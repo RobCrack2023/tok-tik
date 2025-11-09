@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { UserProfile } from '@/types';
 import Link from 'next/link';
-import { ArrowLeftIcon, PlayIcon, TrashIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import { ArrowLeftIcon, PlayIcon, TrashIcon, EyeIcon, EyeSlashIcon, ChatBubbleOvalLeftIcon, NoSymbolIcon } from '@heroicons/react/24/outline';
 
 interface ProfilePageProps {
   params: { id: string };
@@ -116,6 +116,30 @@ export default function ProfilePage({ params }: ProfilePageProps) {
     } catch (error) {
       console.error('Error:', error);
       alert('Error al cambiar el estado del video');
+    }
+  };
+
+  const handleToggleComments = async (videoId: string, currentStatus: boolean) => {
+    try {
+      const response = await fetch(`/api/videos/${videoId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ commentsDisabled: !currentStatus }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al cambiar configuración de comentarios');
+      }
+
+      // Actualizar la lista de videos
+      setVideos(videos.map(v =>
+        v.id === videoId ? { ...v, commentsDisabled: !currentStatus } : v
+      ));
+
+      alert(currentStatus ? 'Comentarios habilitados' : 'Comentarios deshabilitados');
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error al cambiar la configuración de comentarios');
     }
   };
 
@@ -269,6 +293,34 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                           <EyeSlashIcon className="w-4 h-4 text-white pointer-events-none" />
                         ) : (
                           <EyeIcon className="w-4 h-4 text-white pointer-events-none" />
+                        )}
+                      </button>
+
+                      {/* Botón habilitar/deshabilitar comentarios */}
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleToggleComments(video.id, video.commentsDisabled);
+                        }}
+                        onTouchStart={(e) => {
+                          e.stopPropagation();
+                        }}
+                        onContextMenu={(e) => {
+                          e.preventDefault();
+                        }}
+                        className={`p-2 rounded-full touch-manipulation ${
+                          video.commentsDisabled
+                            ? 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800'
+                            : 'bg-gray-600 hover:bg-gray-700 active:bg-gray-800'
+                        }`}
+                        title={video.commentsDisabled ? 'Habilitar comentarios' : 'Deshabilitar comentarios'}
+                        aria-label={video.commentsDisabled ? 'Habilitar comentarios' : 'Deshabilitar comentarios'}
+                      >
+                        {video.commentsDisabled ? (
+                          <ChatBubbleOvalLeftIcon className="w-4 h-4 text-white pointer-events-none" />
+                        ) : (
+                          <NoSymbolIcon className="w-4 h-4 text-white pointer-events-none" />
                         )}
                       </button>
 

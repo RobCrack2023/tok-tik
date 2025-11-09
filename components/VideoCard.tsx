@@ -309,6 +309,8 @@ export default function VideoCard({ video, onUpdate }: VideoCardProps) {
       {/* Comments Panel */}
       <Comments
         videoId={video.id}
+        videoOwnerId={video.userId}
+        commentsDisabled={video.commentsDisabled}
         isOpen={showComments}
         onClose={() => setShowComments(false)}
       />

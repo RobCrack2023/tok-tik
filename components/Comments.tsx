@@ -7,16 +7,19 @@ import { Comment } from '@/types';
 
 interface CommentsProps {
   videoId: string;
+  videoOwnerId: string;
+  commentsDisabled?: boolean;
   isOpen: boolean;
   onClose: () => void;
 }
 
-export default function Comments({ videoId, isOpen, onClose }: CommentsProps) {
+export default function Comments({ videoId, videoOwnerId, commentsDisabled = false, isOpen, onClose }: CommentsProps) {
   const { isAuthenticated, user } = useAuth();
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState('');
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const isVideoOwner = isAuthenticated && (user as any)?.id === videoOwnerId;
 
   useEffect(() => {
     if (isOpen) {
@@ -139,11 +142,12 @@ export default function Comments({ videoId, isOpen, onClose }: CommentsProps) {
                 <p className="text-xs sm:text-sm text-gray-200">{comment.text}</p>
               </div>
 
-              {/* Delete button - only for own comments */}
-              {isAuthenticated && (user as any)?.id === comment.userId && (
+              {/* Delete button - for own comments or video owner */}
+              {isAuthenticated && ((user as any)?.id === comment.userId || isVideoOwner) && (
                 <button
                   onClick={() => handleDelete(comment.id)}
                   className="text-gray-500 hover:text-red-500 transition-colors flex-shrink-0 p-1"
+                  title={isVideoOwner && (user as any)?.id !== comment.userId ? "Eliminar como moderador" : "Eliminar comentario"}
                 >
                   <TrashIcon className="w-4 h-4" />
                 </button>
@@ -158,8 +162,12 @@ export default function Comments({ videoId, isOpen, onClose }: CommentsProps) {
         )}
       </div>
 
-      {/* Input - only if authenticated */}
-      {isAuthenticated ? (
+      {/* Input - only if authenticated and comments enabled */}
+      {commentsDisabled ? (
+        <div className="p-3 sm:p-4 border-t border-gray-800 text-center text-gray-400 text-xs sm:text-sm bg-black">
+          Los comentarios están deshabilitados para este video
+        </div>
+      ) : isAuthenticated ? (
         <form onSubmit={handleSubmit} className="p-3 sm:p-4 border-t border-gray-800 bg-black">
           <div className="flex gap-2">
             <input
@@ -168,14 +176,16 @@ export default function Comments({ videoId, isOpen, onClose }: CommentsProps) {
               onChange={(e) => setNewComment(e.target.value)}
               placeholder="Agrega un comentario..."
               maxLength={500}
+              autoComplete="off"
               className="flex-1 bg-gray-900 border border-gray-700 rounded-full px-3 sm:px-4 py-2 text-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-tok-tik-pink transition-colors"
+              style={{ fontSize: '16px' }}
             />
             <button
               type="submit"
               disabled={!newComment.trim() || submitting}
-              className="bg-tok-tik-pink hover:bg-pink-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-full p-2 transition-colors flex-shrink-0"
+              className="bg-tok-tik-pink hover:bg-pink-600 active:bg-pink-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-full p-2 transition-colors flex-shrink-0 touch-manipulation"
             >
-              <PaperAirplaneIcon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+              <PaperAirplaneIcon className="w-4 h-4 sm:w-5 sm:h-5 text-white pointer-events-none" />
             </button>
           </div>
         </form>

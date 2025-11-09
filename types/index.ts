@@ -21,6 +21,7 @@ export interface Video {
   duration: number | null;
   views: number;
   isPublic: boolean;
+  commentsDisabled: boolean;
   createdAt: Date;
   updatedAt: Date;
   user?: UserProfile;

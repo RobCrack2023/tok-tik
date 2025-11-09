@@ -86,13 +86,14 @@ export async function PATCH(
       );
     }
 
-    const { caption, isPublic } = await request.json();
+    const { caption, isPublic, commentsDisabled } = await request.json();
 
     const updatedVideo = await prisma.video.update({
       where: { id: params.id },
       data: {
         ...(caption !== undefined && { caption }),
         ...(isPublic !== undefined && { isPublic }),
+        ...(commentsDisabled !== undefined && { commentsDisabled }),
       }
     });
 
