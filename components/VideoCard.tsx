@@ -26,7 +26,10 @@ export default function VideoCard({ video, onUpdate }: VideoCardProps) {
   const [commentsCount, setCommentsCount] = useState(video._count?.comments || 0);
   const [liking, setLiking] = useState(false);
   const [showComments, setShowComments] = useState(false);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+  const [videoWatchTime, setVideoWatchTime] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const watchTimerRef = useRef<NodeJS.Timeout | null>(null);
   const { isAuthenticated } = useAuth();
 
   const togglePlay = () => {
@@ -71,16 +74,52 @@ export default function VideoCard({ video, onUpdate }: VideoCardProps) {
     }
   };
 
+  // Timer para usuarios anónimos (5 segundos de preview)
+  useEffect(() => {
+    if (!isAuthenticated && isPlaying) {
+      watchTimerRef.current = setInterval(() => {
+        setVideoWatchTime((prev) => {
+          if (prev >= 5) {
+            // Pausar video y mostrar prompt de login después de 5 segundos
+            if (videoRef.current) {
+              videoRef.current.pause();
+              setIsPlaying(false);
+            }
+            setShowLoginPrompt(true);
+            if (watchTimerRef.current) {
+              clearInterval(watchTimerRef.current);
+            }
+            return prev;
+          }
+          return prev + 1;
+        });
+      }, 1000);
+    }
+
+    return () => {
+      if (watchTimerRef.current) {
+        clearInterval(watchTimerRef.current);
+      }
+    };
+  }, [isPlaying, isAuthenticated]);
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
+            // Resetear timer al entrar en vista
+            setVideoWatchTime(0);
+            setShowLoginPrompt(false);
             videoRef.current?.play();
             setIsPlaying(true);
           } else {
             videoRef.current?.pause();
             setIsPlaying(false);
+            // Limpiar timer al salir de vista
+            if (watchTimerRef.current) {
+              clearInterval(watchTimerRef.current);
+            }
           }
         });
       },
@@ -94,6 +133,9 @@ export default function VideoCard({ video, onUpdate }: VideoCardProps) {
     return () => {
       if (videoRef.current) {
         observer.unobserve(videoRef.current);
+      }
+      if (watchTimerRef.current) {
+        clearInterval(watchTimerRef.current);
       }
     };
   }, []);
@@ -111,14 +153,14 @@ export default function VideoCard({ video, onUpdate }: VideoCardProps) {
   return (
     <div className="relative h-screen snap-start flex items-center justify-center bg-black">
       {/* Video de fondo */}
-      <div className="relative w-full max-w-md h-full bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center">
+      <div className="relative w-full h-full lg:max-w-md bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center">
         {video.videoUrl ? (
           <>
             {/* Video real */}
             <video
               ref={videoRef}
               src={video.videoUrl}
-              className="w-full h-full object-contain"
+              className="w-full h-full object-cover lg:object-contain"
               loop
               playsInline
               onClick={togglePlay}
@@ -147,36 +189,36 @@ export default function VideoCard({ video, onUpdate }: VideoCardProps) {
       </div>
 
       {/* Información del video */}
-      <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black via-black/60 to-transparent">
-        <div className="max-w-md">
-          <div className="flex items-center gap-3 mb-3">
+      <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 pb-20 sm:pb-6 bg-gradient-to-t from-black via-black/80 to-transparent lg:max-w-md">
+        <div className="w-full pr-16 sm:pr-0">
+          <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
             {video.user?.avatar ? (
               <img
                 src={video.user.avatar}
                 alt={video.user.username}
-                className="w-10 h-10 rounded-full object-cover"
+                className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover flex-shrink-0"
               />
             ) : (
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-tok-tik-pink to-tok-tik-cyan flex items-center justify-center text-sm font-bold">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-tok-tik-pink to-tok-tik-cyan flex items-center justify-center text-xs sm:text-sm font-bold flex-shrink-0">
                 {video.user?.username?.[0]?.toUpperCase() || '?'}
               </div>
             )}
-            <Link href={`/profile/${video.user?.id}`} className="font-semibold hover:underline">
+            <Link href={`/profile/${video.user?.id}`} className="font-semibold hover:underline text-sm sm:text-base truncate">
               @{video.user?.username}
             </Link>
             {isAuthenticated && (
-              <button className="px-4 py-1 border border-white rounded-md text-sm font-semibold hover:bg-white hover:text-black transition-colors">
+              <button className="hidden sm:block px-4 py-1 border border-white rounded-md text-sm font-semibold hover:bg-white hover:text-black transition-colors flex-shrink-0">
                 Seguir
               </button>
             )}
           </div>
-          <p className="text-sm mb-2">{video.caption || 'Sin descripción'}</p>
+          <p className="text-xs sm:text-sm mb-1 sm:mb-2 line-clamp-2">{video.caption || 'Sin descripción'}</p>
           <p className="text-xs text-gray-400">{formatNumber(video.views)} vistas</p>
         </div>
       </div>
 
       {/* Acciones laterales */}
-      <div className="absolute right-4 bottom-24 flex flex-col gap-6">
+      <div className="absolute right-2 sm:right-4 bottom-24 sm:bottom-28 flex flex-col gap-4 sm:gap-6">
         {/* Like */}
         <button
           onClick={toggleLike}
@@ -185,11 +227,11 @@ export default function VideoCard({ video, onUpdate }: VideoCardProps) {
           title={!isAuthenticated ? 'Inicia sesión para dar like' : ''}
         >
           {isLiked ? (
-            <HeartIconSolid className="w-8 h-8 text-tok-tik-pink" />
+            <HeartIconSolid className="w-7 h-7 sm:w-8 sm:h-8 text-tok-tik-pink drop-shadow-lg" />
           ) : (
-            <HeartIcon className="w-8 h-8 text-white hover:scale-110 transition-transform" />
+            <HeartIcon className="w-7 h-7 sm:w-8 sm:h-8 text-white hover:scale-110 transition-transform drop-shadow-lg" />
           )}
-          <span className="text-xs mt-1">{formatNumber(likesCount)}</span>
+          <span className="text-xs mt-1 drop-shadow-lg font-semibold">{formatNumber(likesCount)}</span>
         </button>
 
         {/* Comentarios */}
@@ -197,14 +239,14 @@ export default function VideoCard({ video, onUpdate }: VideoCardProps) {
           onClick={() => setShowComments(!showComments)}
           className="flex flex-col items-center"
         >
-          <ChatBubbleOvalLeftIcon className="w-8 h-8 text-white hover:scale-110 transition-transform" />
-          <span className="text-xs mt-1">{formatNumber(commentsCount)}</span>
+          <ChatBubbleOvalLeftIcon className="w-7 h-7 sm:w-8 sm:h-8 text-white hover:scale-110 transition-transform drop-shadow-lg" />
+          <span className="text-xs mt-1 drop-shadow-lg font-semibold">{formatNumber(commentsCount)}</span>
         </button>
 
         {/* Compartir */}
         <button className="flex flex-col items-center">
-          <ArrowUpTrayIcon className="w-8 h-8 text-white hover:scale-110 transition-transform" />
-          <span className="text-xs mt-1">Compartir</span>
+          <ArrowUpTrayIcon className="w-7 h-7 sm:w-8 sm:h-8 text-white hover:scale-110 transition-transform drop-shadow-lg" />
+          <span className="text-xs mt-1 drop-shadow-lg font-semibold">Compartir</span>
         </button>
 
         {/* Avatar giratorio */}
@@ -213,10 +255,10 @@ export default function VideoCard({ video, onUpdate }: VideoCardProps) {
             <img
               src={video.user.avatar}
               alt={video.user.username}
-              className="w-12 h-12 rounded-full object-cover border-2 border-white animate-spin-slow"
+              className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-white animate-spin-slow shadow-lg"
             />
           ) : (
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-tok-tik-pink to-tok-tik-cyan p-0.5 animate-spin-slow">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-tok-tik-pink to-tok-tik-cyan p-0.5 animate-spin-slow shadow-lg">
               <div className="w-full h-full rounded-full bg-gray-800 flex items-center justify-center text-xs font-bold">
                 {video.user?.username?.[0]?.toUpperCase() || '?'}
               </div>
@@ -231,6 +273,43 @@ export default function VideoCard({ video, onUpdate }: VideoCardProps) {
         isOpen={showComments}
         onClose={() => setShowComments(false)}
       />
+
+      {/* Login Prompt Modal for Anonymous Users */}
+      {showLoginPrompt && !isAuthenticated && (
+        <div className="absolute inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-900 rounded-2xl p-6 sm:p-8 max-w-sm w-full mx-4 shadow-2xl border border-gray-800">
+            <h3 className="text-xl sm:text-2xl font-bold text-white mb-3 text-center">
+              ¡Regístrate para continuar!
+            </h3>
+            <p className="text-gray-400 text-center mb-6 text-sm sm:text-base">
+              Crea una cuenta gratis para ver videos completos, dar likes y subir tu propio contenido
+            </p>
+            <div className="space-y-3">
+              <Link
+                href="/register"
+                className="block w-full bg-tok-tik-pink hover:bg-pink-600 text-white font-semibold py-3 px-4 rounded-lg transition-colors text-center"
+              >
+                Registrarse Gratis
+              </Link>
+              <Link
+                href="/login"
+                className="block w-full border border-gray-600 hover:bg-gray-800 text-white font-semibold py-3 px-4 rounded-lg transition-colors text-center"
+              >
+                Ya tengo cuenta
+              </Link>
+              <button
+                onClick={() => {
+                  setShowLoginPrompt(false);
+                  setVideoWatchTime(0);
+                }}
+                className="w-full text-gray-400 hover:text-white text-sm py-2 transition-colors"
+              >
+                Ver otro video
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

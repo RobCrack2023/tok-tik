@@ -49,4 +49,40 @@ body {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+
+  /* Safe area para dispositivos con notch */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .pt-safe {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  /* Prevenir zoom en iOS en inputs */
+  input,
+  textarea,
+  select {
+    font-size: 16px;
+  }
+
+  /* Mejorar el tap en móvil */
+  button,
+  a {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* Animación de spin lento para avatar */
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 3s linear infinite;
 }

@@ -86,7 +86,7 @@ export default function VideoFeed({ activeTab }: VideoFeedProps) {
   return (
     <div
       ref={containerRef}
-      className="flex-1 overflow-y-scroll snap-y-mandatory no-scrollbar"
+      className="flex-1 overflow-y-scroll snap-y-mandatory no-scrollbar pb-16 lg:pb-0"
     >
       {videos.length > 0 ? (
         videos.map((video) => (
@@ -94,11 +94,11 @@ export default function VideoFeed({ activeTab }: VideoFeedProps) {
         ))
       ) : (
         <div className="flex items-center justify-center h-full">
-          <div className="text-center">
-            <p className="text-gray-400 text-xl mb-2">
+          <div className="text-center px-4">
+            <p className="text-gray-400 text-lg sm:text-xl mb-2">
               {activeTab === 'following' ? 'No hay videos de tus seguidos' : 'No hay videos todavía'}
             </p>
-            <p className="text-gray-500">
+            <p className="text-gray-500 text-sm sm:text-base">
               {activeTab === 'following'
                 ? 'Sigue a otros usuarios para ver su contenido'
                 : 'Sé el primero en subir un video'}
