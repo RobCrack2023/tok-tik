@@ -132,7 +132,7 @@ npx prisma generate
 npx prisma migrate deploy
 
 # (Opcional) Poblar con datos de prueba
-npx prisma db seed
+npm run db:seed
 ```
 
 ---

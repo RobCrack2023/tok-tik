@@ -6,7 +6,7 @@ Esta guía te ayudará a empezar a usar tu aplicación de videos en minutos.
 
 ## 📋 Requisitos Previos
 
-- Node.js v24+ instalado ✅
+- Node.js v20+ instalado ✅
 - Navegador web moderno
 - Editor de código (opcional)
 

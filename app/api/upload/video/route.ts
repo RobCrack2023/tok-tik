@@ -4,6 +4,10 @@ import { authOptions } from '@/lib/auth';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
 
+// Configuración para manejar archivos grandes
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -59,9 +63,20 @@ export async function POST(request: NextRequest) {
     const filepath = path.join(uploadDir, filename);
 
     // Guardar archivo
+    console.log(`[Upload] Guardando video: ${filename}, tamaño: ${videoFile.size} bytes`);
     const bytes = await videoFile.arrayBuffer();
     const buffer = Buffer.from(bytes);
+
+    if (buffer.length === 0) {
+      console.error('[Upload] Buffer vacío recibido');
+      return NextResponse.json(
+        { error: 'Error: archivo vacío' },
+        { status: 400 }
+      );
+    }
+
     await writeFile(filepath, buffer);
+    console.log(`[Upload] Video guardado exitosamente en: ${filepath}`);
 
     const videoUrl = `/uploads/${filename}`;
 
@@ -72,9 +87,9 @@ export async function POST(request: NextRequest) {
       originalFilename: videoFile.name,
     });
   } catch (error) {
-    console.error('Error al subir video:', error);
+    console.error('[Upload] Error al subir video:', error);
     return NextResponse.json(
-      { error: 'Error al subir video' },
+      { error: `Error al subir video: ${error instanceof Error ? error.message : 'Error desconocido'}` },
       { status: 500 }
     );
   }
