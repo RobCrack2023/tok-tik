@@ -94,36 +94,36 @@ export default function Comments({ videoId, isOpen, onClose }: CommentsProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="absolute bottom-0 left-0 right-0 bg-black/95 backdrop-blur-md max-h-[60vh] flex flex-col z-20">
+    <div className="absolute bottom-16 lg:bottom-0 left-0 right-0 bg-black/95 backdrop-blur-md max-h-[70vh] lg:max-h-[60vh] flex flex-col z-20 rounded-t-2xl border-t border-gray-800">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-800">
-        <h3 className="text-lg font-semibold">{comments.length} Comentarios</h3>
+      <div className="flex items-center justify-between p-3 sm:p-4 border-b border-gray-800">
+        <h3 className="text-base sm:text-lg font-semibold">{comments.length} Comentarios</h3>
         <button
           onClick={onClose}
-          className="text-gray-400 hover:text-white transition-colors"
+          className="text-gray-400 hover:text-white transition-colors text-xl w-8 h-8 flex items-center justify-center"
         >
           ✕
         </button>
       </div>
 
       {/* Comments List */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4">
         {loading ? (
           <div className="text-center py-8">
             <div className="w-8 h-8 border-2 border-tok-tik-pink border-t-transparent rounded-full animate-spin mx-auto"></div>
           </div>
         ) : comments.length > 0 ? (
           comments.map((comment) => (
-            <div key={comment.id} className="flex gap-3">
+            <div key={comment.id} className="flex gap-2 sm:gap-3">
               {/* Avatar */}
               {comment.user?.avatar ? (
                 <img
                   src={comment.user.avatar}
                   alt={comment.user.username}
-                  className="w-8 h-8 rounded-full flex-shrink-0"
+                  className="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex-shrink-0"
                 />
               ) : (
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-tok-tik-pink to-tok-tik-cyan flex items-center justify-center flex-shrink-0">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-tok-tik-pink to-tok-tik-cyan flex items-center justify-center flex-shrink-0">
                   <span className="text-xs font-bold">
                     {comment.user?.username?.[0]?.toUpperCase() || '?'}
                   </span>
@@ -133,17 +133,17 @@ export default function Comments({ videoId, isOpen, onClose }: CommentsProps) {
               {/* Comment Content */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="font-semibold text-sm">@{comment.user?.username}</span>
+                  <span className="font-semibold text-xs sm:text-sm">@{comment.user?.username}</span>
                   <span className="text-xs text-gray-500">{formatDate(comment.createdAt)}</span>
                 </div>
-                <p className="text-sm text-gray-200">{comment.text}</p>
+                <p className="text-xs sm:text-sm text-gray-200">{comment.text}</p>
               </div>
 
               {/* Delete button - only for own comments */}
               {isAuthenticated && (user as any)?.id === comment.userId && (
                 <button
                   onClick={() => handleDelete(comment.id)}
-                  className="text-gray-500 hover:text-red-500 transition-colors flex-shrink-0"
+                  className="text-gray-500 hover:text-red-500 transition-colors flex-shrink-0 p-1"
                 >
                   <TrashIcon className="w-4 h-4" />
                 </button>
@@ -152,15 +152,15 @@ export default function Comments({ videoId, isOpen, onClose }: CommentsProps) {
           ))
         ) : (
           <div className="text-center py-8 text-gray-400">
-            <p>No hay comentarios todavía</p>
-            <p className="text-sm mt-2">Sé el primero en comentar</p>
+            <p className="text-sm">No hay comentarios todavía</p>
+            <p className="text-xs sm:text-sm mt-2">Sé el primero en comentar</p>
           </div>
         )}
       </div>
 
       {/* Input - only if authenticated */}
       {isAuthenticated ? (
-        <form onSubmit={handleSubmit} className="p-4 border-t border-gray-800">
+        <form onSubmit={handleSubmit} className="p-3 sm:p-4 border-t border-gray-800 bg-black">
           <div className="flex gap-2">
             <input
               type="text"
@@ -168,19 +168,19 @@ export default function Comments({ videoId, isOpen, onClose }: CommentsProps) {
               onChange={(e) => setNewComment(e.target.value)}
               placeholder="Agrega un comentario..."
               maxLength={500}
-              className="flex-1 bg-gray-900 border border-gray-700 rounded-full px-4 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-tok-tik-pink transition-colors"
+              className="flex-1 bg-gray-900 border border-gray-700 rounded-full px-3 sm:px-4 py-2 text-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-tok-tik-pink transition-colors"
             />
             <button
               type="submit"
               disabled={!newComment.trim() || submitting}
-              className="bg-tok-tik-pink hover:bg-pink-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-full p-2 transition-colors"
+              className="bg-tok-tik-pink hover:bg-pink-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-full p-2 transition-colors flex-shrink-0"
             >
-              <PaperAirplaneIcon className="w-5 h-5 text-white" />
+              <PaperAirplaneIcon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
             </button>
           </div>
         </form>
       ) : (
-        <div className="p-4 border-t border-gray-800 text-center text-gray-400 text-sm">
+        <div className="p-3 sm:p-4 border-t border-gray-800 text-center text-gray-400 text-xs sm:text-sm bg-black">
           Inicia sesión para comentar
         </div>
       )}

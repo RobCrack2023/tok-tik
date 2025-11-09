@@ -257,7 +257,24 @@ export default function VideoCard({ video, onUpdate }: VideoCardProps) {
       </div>
 
       {/* Acciones laterales */}
-      <div className="absolute right-2 sm:right-4 bottom-24 sm:bottom-28 flex flex-col gap-4 sm:gap-6">
+      <div className="absolute right-2 sm:right-4 bottom-28 sm:bottom-32 lg:bottom-28 flex flex-col gap-4 sm:gap-6">
+        {/* Avatar giratorio - primero en móvil */}
+        <Link href={`/profile/${video.user?.id}`} className="flex justify-center">
+          {video.user?.avatar ? (
+            <img
+              src={video.user.avatar}
+              alt={video.user.username}
+              className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-white animate-spin-slow shadow-lg"
+            />
+          ) : (
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-tok-tik-pink to-tok-tik-cyan p-0.5 animate-spin-slow shadow-lg">
+              <div className="w-full h-full rounded-full bg-gray-800 flex items-center justify-center text-xs font-bold">
+                {video.user?.username?.[0]?.toUpperCase() || '?'}
+              </div>
+            </div>
+          )}
+        </Link>
+
         {/* Like */}
         <button
           onClick={toggleLike}
@@ -287,23 +304,6 @@ export default function VideoCard({ video, onUpdate }: VideoCardProps) {
           <ArrowUpTrayIcon className="w-7 h-7 sm:w-8 sm:h-8 text-white hover:scale-110 transition-transform drop-shadow-lg" />
           <span className="text-xs mt-1 drop-shadow-lg font-semibold">Compartir</span>
         </button>
-
-        {/* Avatar giratorio */}
-        <Link href={`/profile/${video.user?.id}`}>
-          {video.user?.avatar ? (
-            <img
-              src={video.user.avatar}
-              alt={video.user.username}
-              className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-white animate-spin-slow shadow-lg"
-            />
-          ) : (
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-tok-tik-pink to-tok-tik-cyan p-0.5 animate-spin-slow shadow-lg">
-              <div className="w-full h-full rounded-full bg-gray-800 flex items-center justify-center text-xs font-bold">
-                {video.user?.username?.[0]?.toUpperCase() || '?'}
-              </div>
-            </div>
-          )}
-        </Link>
       </div>
 
       {/* Comments Panel */}
