@@ -6,7 +6,9 @@ import {
   ChatBubbleOvalLeftIcon,
   ArrowUpTrayIcon,
   PlayIcon,
-  PauseIcon
+  PauseIcon,
+  SpeakerWaveIcon,
+  SpeakerXMarkIcon
 } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartIconSolid } from '@heroicons/react/24/solid';
 import { Video } from '@/types';
@@ -21,6 +23,7 @@ interface VideoCardProps {
 
 export default function VideoCard({ video, onUpdate }: VideoCardProps) {
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
   const [isLiked, setIsLiked] = useState(video.isLiked || false);
   const [likesCount, setLikesCount] = useState(video._count?.likes || 0);
   const [commentsCount, setCommentsCount] = useState(video._count?.comments || 0);
@@ -32,14 +35,27 @@ export default function VideoCard({ video, onUpdate }: VideoCardProps) {
   const watchTimerRef = useRef<NodeJS.Timeout | null>(null);
   const { isAuthenticated } = useAuth();
 
-  const togglePlay = () => {
+  const togglePlay = async () => {
     if (videoRef.current) {
-      if (isPlaying) {
-        videoRef.current.pause();
-      } else {
-        videoRef.current.play();
+      try {
+        if (isPlaying) {
+          videoRef.current.pause();
+          setIsPlaying(false);
+        } else {
+          await videoRef.current.play();
+          setIsPlaying(true);
+        }
+      } catch (error) {
+        console.log('No se pudo reproducir el video:', error);
+        setIsPlaying(false);
       }
-      setIsPlaying(!isPlaying);
+    }
+  };
+
+  const toggleMute = () => {
+    if (videoRef.current) {
+      videoRef.current.muted = !isMuted;
+      setIsMuted(!isMuted);
     }
   };
 
@@ -106,13 +122,22 @@ export default function VideoCard({ video, onUpdate }: VideoCardProps) {
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        entries.forEach((entry) => {
+        entries.forEach(async (entry) => {
           if (entry.isIntersecting) {
             // Resetear timer al entrar en vista
             setVideoWatchTime(0);
             setShowLoginPrompt(false);
-            videoRef.current?.play();
-            setIsPlaying(true);
+
+            // Intentar reproducir el video con manejo de errores
+            try {
+              if (videoRef.current) {
+                await videoRef.current.play();
+                setIsPlaying(true);
+              }
+            } catch (error) {
+              console.log('Autoplay fue bloqueado por el navegador:', error);
+              setIsPlaying(false);
+            }
           } else {
             videoRef.current?.pause();
             setIsPlaying(false);
@@ -163,6 +188,7 @@ export default function VideoCard({ video, onUpdate }: VideoCardProps) {
               className="w-full h-full object-cover lg:object-contain"
               loop
               playsInline
+              muted
               onClick={togglePlay}
             />
 
@@ -175,6 +201,18 @@ export default function VideoCard({ video, onUpdate }: VideoCardProps) {
                 <PlayIcon className="w-16 h-16 text-white" />
               </button>
             )}
+
+            {/* Control de volumen */}
+            <button
+              onClick={toggleMute}
+              className="absolute bottom-6 left-4 z-10 bg-black/50 rounded-full p-2 hover:bg-black/70 transition-colors"
+            >
+              {isMuted ? (
+                <SpeakerXMarkIcon className="w-6 h-6 text-white" />
+              ) : (
+                <SpeakerWaveIcon className="w-6 h-6 text-white" />
+              )}
+            </button>
           </>
         ) : (
           /* Placeholder cuando no hay video */
