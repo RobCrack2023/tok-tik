@@ -201,19 +201,6 @@ export default function VideoCard({ video, onUpdate }: VideoCardProps) {
                 <PlayIcon className="w-16 h-16 text-white" />
               </button>
             )}
-
-            {/* Control de volumen */}
-            <button
-              onClick={toggleMute}
-              className="absolute top-4 right-4 z-10 bg-black/50 rounded-full p-2 hover:bg-black/70 transition-colors backdrop-blur-sm"
-              aria-label={isMuted ? "Activar sonido" : "Silenciar"}
-            >
-              {isMuted ? (
-                <SpeakerXMarkIcon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-              ) : (
-                <SpeakerWaveIcon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-              )}
-            </button>
           </>
         ) : (
           /* Placeholder cuando no hay video */
@@ -303,6 +290,20 @@ export default function VideoCard({ video, onUpdate }: VideoCardProps) {
         <button className="flex flex-col items-center">
           <ArrowUpTrayIcon className="w-7 h-7 sm:w-8 sm:h-8 text-white hover:scale-110 transition-transform drop-shadow-lg" />
           <span className="text-xs mt-1 drop-shadow-lg font-semibold">Compartir</span>
+        </button>
+
+        {/* Volumen */}
+        <button
+          onClick={toggleMute}
+          className="flex flex-col items-center"
+          aria-label={isMuted ? "Activar sonido" : "Silenciar"}
+        >
+          {isMuted ? (
+            <SpeakerXMarkIcon className="w-7 h-7 sm:w-8 sm:h-8 text-white hover:scale-110 transition-transform drop-shadow-lg" />
+          ) : (
+            <SpeakerWaveIcon className="w-7 h-7 sm:w-8 sm:h-8 text-white hover:scale-110 transition-transform drop-shadow-lg" />
+          )}
+          <span className="text-xs mt-1 drop-shadow-lg font-semibold">{isMuted ? 'Silenciado' : 'Sonido'}</span>
         </button>
       </div>
 
