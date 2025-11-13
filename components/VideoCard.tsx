@@ -31,8 +31,10 @@ export default function VideoCard({ video, onUpdate }: VideoCardProps) {
   const [showComments, setShowComments] = useState(false);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [videoWatchTime, setVideoWatchTime] = useState(0);
+  const [isFastForward, setIsFastForward] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const watchTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
   const { isAuthenticated } = useAuth();
 
   const togglePlay = async () => {
@@ -87,6 +89,32 @@ export default function VideoCard({ video, onUpdate }: VideoCardProps) {
       setLikesCount(previousCount);
     } finally {
       setLiking(false);
+    }
+  };
+
+  // Manejar long press para avance rápido
+  const handlePressStart = (e: React.MouseEvent | React.TouchEvent) => {
+    // No activar si se hace clic en los botones de acción
+    const target = e.target as HTMLElement;
+    if (target.tagName === 'BUTTON' || target.closest('button')) {
+      return;
+    }
+
+    longPressTimerRef.current = setTimeout(() => {
+      if (videoRef.current && isPlaying) {
+        videoRef.current.playbackRate = 2.0;
+        setIsFastForward(true);
+      }
+    }, 300); // Detectar después de 300ms
+  };
+
+  const handlePressEnd = () => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+    }
+    if (videoRef.current) {
+      videoRef.current.playbackRate = 1.0;
+      setIsFastForward(false);
     }
   };
 
@@ -162,6 +190,9 @@ export default function VideoCard({ video, onUpdate }: VideoCardProps) {
       if (watchTimerRef.current) {
         clearInterval(watchTimerRef.current);
       }
+      if (longPressTimerRef.current) {
+        clearTimeout(longPressTimerRef.current);
+      }
     };
   }, []);
 
@@ -190,6 +221,11 @@ export default function VideoCard({ video, onUpdate }: VideoCardProps) {
               playsInline
               muted
               onClick={togglePlay}
+              onMouseDown={handlePressStart}
+              onMouseUp={handlePressEnd}
+              onMouseLeave={handlePressEnd}
+              onTouchStart={handlePressStart}
+              onTouchEnd={handlePressEnd}
             />
 
             {/* Controles de reproducción */}
@@ -200,6 +236,18 @@ export default function VideoCard({ video, onUpdate }: VideoCardProps) {
               >
                 <PlayIcon className="w-16 h-16 text-white" />
               </button>
+            )}
+
+            {/* Indicador de avance rápido */}
+            {isFastForward && (
+              <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-20 bg-tok-tik-pink/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg animate-pulse">
+                <div className="flex items-center gap-2">
+                  <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/>
+                  </svg>
+                  <span className="text-white font-bold text-sm">2x</span>
+                </div>
+              </div>
             )}
           </>
         ) : (
