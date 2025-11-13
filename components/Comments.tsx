@@ -97,7 +97,7 @@ export default function Comments({ videoId, videoOwnerId, commentsDisabled = fal
   if (!isOpen) return null;
 
   return (
-    <div className="absolute bottom-16 lg:bottom-0 left-0 right-0 bg-black/95 backdrop-blur-md max-h-[70vh] lg:max-h-[60vh] flex flex-col z-20 rounded-t-2xl border-t border-gray-800">
+    <div className="absolute bottom-16 lg:bottom-0 left-0 right-0 bg-black/95 backdrop-blur-md max-h-[60vh] lg:max-h-[60vh] flex flex-col z-30 rounded-t-2xl border-t border-gray-800">
       {/* Header */}
       <div className="flex items-center justify-between p-3 sm:p-4 border-b border-gray-800">
         <h3 className="text-base sm:text-lg font-semibold">{comments.length} Comentarios</h3>
@@ -168,7 +168,7 @@ export default function Comments({ videoId, videoOwnerId, commentsDisabled = fal
           Los comentarios están deshabilitados para este video
         </div>
       ) : isAuthenticated ? (
-        <form onSubmit={handleSubmit} className="p-3 sm:p-4 border-t border-gray-800 bg-black">
+        <form onSubmit={handleSubmit} className="p-3 sm:p-4 pb-6 border-t border-gray-800 bg-black">
           <div className="flex gap-2">
             <input
               type="text"
@@ -190,7 +190,7 @@ export default function Comments({ videoId, videoOwnerId, commentsDisabled = fal
           </div>
         </form>
       ) : (
-        <div className="p-3 sm:p-4 border-t border-gray-800 text-center text-gray-400 text-xs sm:text-sm bg-black">
+        <div className="p-3 sm:p-4 pb-6 border-t border-gray-800 text-center text-gray-400 text-xs sm:text-sm bg-black">
           Inicia sesión para comentar
         </div>
       )}

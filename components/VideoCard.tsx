@@ -257,7 +257,7 @@ export default function VideoCard({ video, onUpdate }: VideoCardProps) {
       </div>
 
       {/* Acciones laterales */}
-      <div className="absolute right-2 sm:right-4 bottom-28 sm:bottom-32 lg:bottom-28 flex flex-col gap-4 sm:gap-6">
+      <div className="absolute right-2 sm:right-4 bottom-32 sm:bottom-32 lg:bottom-28 flex flex-col gap-4 sm:gap-6">
         {/* Avatar giratorio - primero en móvil */}
         <Link href={`/profile/${video.user?.id}`} className="flex justify-center">
           {video.user?.avatar ? (
