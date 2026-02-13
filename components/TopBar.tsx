@@ -1,6 +1,8 @@
 'use client';
 
-import { MagnifyingGlassIcon, Bars3Icon } from '@heroicons/react/24/outline';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 
 interface TopBarProps {
   activeTab: 'forYou' | 'following';
@@ -8,6 +10,15 @@ interface TopBarProps {
 }
 
 export default function TopBar({ activeTab, setActiveTab }: TopBarProps) {
+  const router = useRouter();
+  const [inputValue, setInputValue] = useState('');
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const q = inputValue.trim();
+    router.push(q ? `/search?q=${encodeURIComponent(q)}` : '/search');
+  };
+
   return (
     <header className="sticky top-0 z-10 bg-black/95 backdrop-blur-md border-b border-gray-800">
       <div className="flex flex-col">
@@ -44,15 +55,21 @@ export default function TopBar({ activeTab, setActiveTab }: TopBarProps) {
 
           {/* Búsqueda */}
           <div className="flex items-center gap-2 sm:gap-4">
-            <div className="hidden md:flex items-center bg-gray-900 rounded-full px-3 sm:px-4 py-2">
+            <form onSubmit={handleSearch} className="hidden md:flex items-center bg-gray-900 rounded-full px-3 sm:px-4 py-2">
               <MagnifyingGlassIcon className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 mr-2" />
               <input
                 type="text"
+                value={inputValue}
+                onChange={e => setInputValue(e.target.value)}
                 placeholder="Buscar..."
                 className="bg-transparent text-white outline-none w-32 sm:w-64 text-sm"
               />
-            </div>
-            <button className="md:hidden p-2">
+            </form>
+            <button
+              className="md:hidden p-2"
+              onClick={() => router.push('/search')}
+              aria-label="Buscar"
+            >
               <MagnifyingGlassIcon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </button>
           </div>

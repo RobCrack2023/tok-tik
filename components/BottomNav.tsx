@@ -2,12 +2,14 @@
 
 import {
   HomeIcon,
+  MagnifyingGlassIcon,
   PlusCircleIcon,
   UserCircleIcon,
   ArrowRightOnRectangleIcon,
 } from '@heroicons/react/24/outline';
 import {
   HomeIcon as HomeIconSolid,
+  MagnifyingGlassIcon as MagnifyingGlassIconSolid,
   UserCircleIcon as UserCircleIconSolid,
 } from '@heroicons/react/24/solid';
 import { useAuth } from '@/hooks/useAuth';
@@ -33,6 +35,21 @@ export default function BottomNav() {
           )}
           <span className={`text-xs mt-1 ${pathname === '/' ? 'text-white font-semibold' : 'text-gray-400'}`}>
             Inicio
+          </span>
+        </Link>
+
+        {/* Buscar */}
+        <Link
+          href="/search"
+          className="flex flex-col items-center justify-center flex-1 py-2"
+        >
+          {pathname === '/search' ? (
+            <MagnifyingGlassIconSolid className="w-7 h-7 text-white" />
+          ) : (
+            <MagnifyingGlassIcon className="w-7 h-7 text-gray-400" />
+          )}
+          <span className={`text-xs mt-1 ${pathname === '/search' ? 'text-white font-semibold' : 'text-gray-400'}`}>
+            Buscar
           </span>
         </Link>
 
